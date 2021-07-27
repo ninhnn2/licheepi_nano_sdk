@@ -26,7 +26,7 @@ sudo dd bs=4M if=lichee-nano-normal-size.img of=/dev/sdb conv=fsync
 
 ROM FOR TESTING
 =======================
-## USER   : root
+## user   : root
 
 ## passwd : 000
 
