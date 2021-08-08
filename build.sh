@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-echo "Welcome to use lichee pi one key package"
+echo "Welcome to use lichee pi nano sdk"
 toolchain_dir="toolchain"
 cross_compiler="arm-linux-gnueabi"
 temp_root_dir=$PWD
@@ -34,22 +34,22 @@ pull_uboot(){
 	else	
 		mv ${temp_root_dir}/${u_boot_dir}/u-boot/* ${temp_root_dir}/${u_boot_dir}/	
 		rm -rf ${temp_root_dir}/${u_boot_dir}/u-boot	
-		echo "pull buildroot ok"
+		echo "pull u-boot ok"
 	fi
 }
 pull_linux(){
 	rm -rf ${temp_root_dir}/${linux_dir} &&\
 	mkdir -p ${temp_root_dir}/${linux_dir} &&\
 	cd ${temp_root_dir}/${linux_dir} &&\
-	#git clone --depth=1 -b nano-4.14-exp https://github.com/Lichee-Pi/linux.git
-       	git clone https://github.com/ninhnn2/linux-5.4.77.git linux
+    git clone https://github.com/ninhnn2/linux-5.4.77.git linux
+	
 	if [ ! -d ${temp_root_dir}/${linux_dir}/linux ]; then
 		echo "Error:pull linux failed"
     		exit 0
 	else	
 		mv ${temp_root_dir}/${linux_dir}/linux/* ${temp_root_dir}/${linux_dir}/
 		rm -rf ${temp_root_dir}/${linux_dir}/linux
-		echo "pull buildroot ok"
+		echo "pull linux ok"
 	fi
 }
 pull_toolchain(){
@@ -64,7 +64,7 @@ pull_toolchain(){
 			echo "Error:pull toolchain failed"
 	    		exit 0
 		else			
-			echo "pull buildroot ok"
+			echo "pull toolchain ok"
 		fi
 	else
 	 	wget https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/arm-linux-gnueabi/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabi.tar.xz &&\
@@ -73,7 +73,7 @@ pull_toolchain(){
 			echo "Error:pull toolchain failed"
 	    		exit 0
 		else			
-			echo "pull buildroot ok"
+			echo "pull toolchain ok"
 		fi
 	fi
 }
@@ -85,17 +85,18 @@ pull_buildroot(){
 	tar xvf buildroot-2021.02.3.tar.gz
 	if [ ! -d ${temp_root_dir}/${buildroot_dir}/buildroot-2021.02.3 ]; then
 		echo "Error:pull buildroot failed"
-    		exit 0
+    	exit 0
 	else			
 		# mv ${temp_root_dir}/${buildroot_dir}/buildroot-2021.02.3/* ${temp_root_dir}/${buildroot_dir}/buildroot-2021.02.3
 		# rm -rf ${temp_root_dir}/${buildroot_dir}/buildroot-2021.02.3
 		echo "pull buildroot ok"
 	fi
 }
+
 pull_all(){
-        sudo apt-get update
+    sudo apt-get update
 	sudo apt-get install -y autoconf automake libtool gettext 
-        sudo apt-get install -y make gcc g++ swig python-dev bc python u-boot-tools bison flex bc libssl-dev libncurses5-dev unzip mtd-utils
+    sudo apt-get install -y make gcc g++ swig python-dev bc python u-boot-tools bison flex bc libssl-dev libncurses5-dev unzip mtd-utils
 	sudo apt-get install -y libc6-i386 lib32stdc++6 lib32z1
 	sudo apt-get install -y libc6:i386 libstdc++6:i386 zlib1g:i386
 	pull_uboot
@@ -203,7 +204,6 @@ clean_linux(){
 	make ARCH=arm CROSS_COMPILE=${cross_compiler}- mrproper > /dev/null 2>&1
 }
 
-
 build_linux(){
 	cd ${temp_root_dir}/${linux_dir}
 	echo "Building linux ..."
@@ -220,10 +220,10 @@ build_linux(){
 
 	if [ $? -ne 0 ] || [ ! -f ${temp_root_dir}/${linux_dir}/arch/arm/boot/zImage ]; then
         	echo "Error: LINUX NOT BUILD.Please Get Some Error From build_linux.log"
-		#error_msg=$(cat ${temp_root_dir}/build_linux.log)
-		#if [[ $(echo $error_msg | grep "ImportError: No module named _libfdt") != "" ]];then
-		#    echo "Please use Python2.7 as default python interpreter"
-		#fi
+			#error_msg=$(cat ${temp_root_dir}/build_linux.log)
+			#if [[ $(echo $error_msg | grep "ImportError: No module named _libfdt") != "" ]];then
+			#    echo "Please use Python2.7 as default python interpreter"
+			#fi
         	exit 1
 	fi
 
@@ -231,9 +231,10 @@ build_linux(){
         	echo "Error: UBOOT NOT BUILD.${temp_root_dir}/${linux_dir}/arch/arm/boot/dts/suniv-f1c100s-licheepi-nano.dtb not found"
         	exit 1
 	fi
+
 	#build linux kernel modules
-	make ARCH=arm CROSS_COMPILE=${cross_compiler}- -j${proc_processor} INSTALL_MOD_PATH=${temp_root_dir}/${linux_dir}/mod_output modules > /dev/null 2>&1
-	make ARCH=arm CROSS_COMPILE=${cross_compiler}- -j${proc_processor} INSTALL_MOD_PATH=${temp_root_dir}/${linux_dir}/mod_output modules_install > /dev/null 2>&1
+	make ARCH=arm CROSS_COMPILE=${cross_compiler}- -j${proc_processor} INSTALL_MOD_PATH=${temp_root_dir}/${linux_dir}/out modules > /dev/null 2>&1
+	make ARCH=arm CROSS_COMPILE=${cross_compiler}- -j${proc_processor} INSTALL_MOD_PATH=${temp_root_dir}/${linux_dir}/out modules_install > /dev/null 2>&1
 	
 	echo "Build linux ok"
 }
@@ -277,7 +278,7 @@ copy_linux(){
 	cp ${temp_root_dir}/${linux_dir}/arch/arm/boot/zImage ${temp_root_dir}/output/
 	cp ${temp_root_dir}/${linux_dir}/arch/arm/boot/dts/suniv-f1c100s-licheepi-nano.dtb ${temp_root_dir}/output/
 	mkdir -p ${temp_root_dir}/output/modules/
-	cp -rf ${temp_root_dir}/${linux_dir}/mod_output/lib ${temp_root_dir}/output/modules/
+	cp -rf ${temp_root_dir}/${linux_dir}/out/lib ${temp_root_dir}/output/modules/
 	
 }
 copy_buildroot(){
@@ -290,22 +291,55 @@ copy_buildroot(){
 #pack=========================================================
 pack_spiflash_normal_size_img(){
 
-	mkdir -p ${temp_root_dir}/output/spiflash-bin
-	dd if=/dev/zero of=${temp_root_dir}/output/spiflash-bin/lichee-nano-normal-size.bin bs=1M count=16
-	echo "--->Packing Uboot..."
-	_UBOOT_FILE=${temp_root_dir}/output/u-boot-sunxi-with-spl.bin
-	dd if=$_UBOOT_FILE of=${temp_root_dir}/output/spiflash-bin/lichee-nano-normal-size.bin bs=1K conv=notrunc
-	_DTB_FILE=${temp_root_dir}/output/suniv-f1c100s-licheepi-nano.dtb
-	echo "--->Packing dtb..."
-	dd if=$_DTB_FILE of=${temp_root_dir}/output/spiflash-bin/lichee-nano-normal-size.bin bs=1K seek=1024  conv=notrunc
-	echo "--->Packing zImage..."
-	_KERNEL_FILE=${temp_root_dir}/output/zImage
-	dd if=$_KERNEL_FILE of=${temp_root_dir}/output/spiflash-bin/lichee-nano-normal-size.bin bs=1K seek=1088  conv=notrunc
-	echo "--->Packing rootfs..."
-	#cp -r $_MOD_FILE  ${temp_root_dir}/output/rootfs/lib/modules/
-	mkfs.jffs2 -s 0x100 -e 0x10000 --pad=0xAF0000 -d ${temp_root_dir}/output/rootfs/ -o ${temp_root_dir}/output/jffs2.img
-	dd if=${temp_root_dir}/output/jffs2.img of=${temp_root_dir}/output/spiflash-bin/lichee-nano-normal-size.bin  bs=1K seek=5184  conv=notrunc
-	echo "pack ok"
+	cd ${temp_root_dir}
+
+    OUT_FILENAME=${temp_root_dir}/output/flashimg.bin
+    
+    UBOOT_FILE=./Lichee-Pi-u-boot/u-boot-sunxi-with-spl.bin
+    KERNEL_DIR=Lichee-Pi-linux
+    BUILDROOT_OUTPUT_DIR=buildroot-2021.02.3/buildroot-2021.02.3/output/images
+
+
+    KERNEL_MODULES_DIR=$KERNEL_DIR/out/*
+    DTB_FILE=$KERNEL_DIR/arch/arm/boot/dts/suniv-f1c100s-licheepi-nano-norflash.dtb
+    KERNEL_FILE=$KERNEL_DIR/arch/arm/boot/zImage
+
+    ROOTFS_FILE=${temp_root_dir}/$BUILDROOT_OUTPUT_DIR/rootfs.tar
+
+    SPEC_FILE=rootfs/custom/*
+    SCRIPTES=rootfs/scripts/*.sh
+
+    dd if=/dev/zero of=$OUT_FILENAME bs=1M count=16
+    dd if=$UBOOT_FILE of=$OUT_FILENAME bs=1K conv=notrunc
+    dd if=$DTB_FILE of=$OUT_FILENAME bs=1K seek=448  conv=notrunc
+    dd if=$KERNEL_FILE of=$OUT_FILENAME bs=1K seek=512  conv=notrunc
+
+    mkdir ${temp_root_dir}/output/rootfs
+    tar xf $ROOTFS_FILE -C ${temp_root_dir}/output/rootfs
+
+    cp -r $KERNEL_MODULES_DIR ${temp_root_dir}/output/rootfs/usr/
+    cp -r $SPEC_FILE $BUILDROOT_OUTPUT_DIR/rootfs/
+
+    mkdir ${temp_root_dir}/output/rootfs/overlay
+    mkdir ${temp_root_dir}/output/rootfs/chroot
+    mkdir ${temp_root_dir}/output/rootfs/rom
+	mkdir ${temp_root_dir}/output/overlay/
+
+    cp -r preinit ${temp_root_dir}/output/rootfs/etc/
+
+    # add some custom modify
+    for f in $SCRIPTES; do
+        ROOTFS_PATH=${temp_root_dir}/output/rootfs bash "$f" -H
+    done
+
+    fakeroot mksquashfs ${temp_root_dir}/output/rootfs/ ${temp_root_dir}/output/rootfs.img -no-exports -no-xattrs -all-root
+    fakeroot mkfs.jffs2 -s 0x100 -e 0x10000 --pad=0x400000 -o ${temp_root_dir}/output/jffs2.img -d ${temp_root_dir}/output/overlay/
+
+    dd if=${temp_root_dir}/output/rootfs.img of=$OUT_FILENAME bs=1K seek=4608  conv=notrunc
+    dd if=${temp_root_dir}/output/jffs2.img of=$OUT_FILENAME bs=1M seek=12 conv=notrunc
+
+    #rm -rf ${temp_root_dir}/output/rootfs ${temp_root_dir}/output/rootfs.img ${temp_root_dir}/output/jffs2.img
+
 }
 pack_tf_normal_size_img(){
 	_ROOTFS_FILE=${temp_root_dir}/output/rootfs.tar.gz
@@ -441,8 +475,6 @@ build(){
 	build_buildroot
 	echo "copy buildroot ..."
 	copy_buildroot
-	
-	
 }
 if [ "${1}" = "" ] && [ ! "${1}" = "nano_spiflash" ] && [ ! "${1}" = "nano_tf" ] && [ ! "${1}" = "pull_all" ]; then
 	echo "Usage: build.sh [nano_spiflash | nano_tf | pull_all | clean]"；
@@ -454,6 +486,7 @@ if [ "${1}" = "" ] && [ ! "${1}" = "nano_spiflash" ] && [ ! "${1}" = "nano_tf" ]
 	echo "clean            Clean build env";
     exit 0
 fi
+
 if [ ! -f ${temp_root_dir}/build.sh ]; then
 	echo "Error:Please enter packge root dir"
     	exit 0
@@ -464,12 +497,15 @@ if [ "${1}" = "clean" ]; then
 	echo "clean ok"
 	exit 0
 fi
+
 if [ "${1}" = "pull_all" ]; then
 	pull_all
 fi
+
 if [ "${1}" = "pull_buildroot" ]; then
 	pull_buildroot
 fi
+
 if [ "${1}" = "nano_spiflash" ]; then
 	echo "build rootfs maybe have some buf in this mode"
 	linux_config_file="licheepi_nano_spiflash_defconfig"
@@ -478,9 +514,11 @@ if [ "${1}" = "nano_spiflash" ]; then
 	pack_spiflash_normal_size_img
 	echo "the binary file in output/spiflash-bin dir"
 fi
+
 if [ "${1}" = "build_buildroot" ]; then
 	build_buildroot
 fi
+
 if [ "${1}" = "nano_tf" ]; then
 	linux_config_file="licheepi_nano_defconfig"
 	u_boot_config_file="licheepi_nano_defconfig"
@@ -492,4 +530,3 @@ fi
 
 sleep 1
 echo "build ok"
-
