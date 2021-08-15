@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# export PATH="/usr/sbin:/usr/bin:/sbin:/bin"
+
+# mount the new rootfs
+#mount -t squashfs /dev/mtdblock3 /rom
+mount -t jffs2 /dev/mtdblock4 /overlay
+#mount -n -t overlay overlayfs:/overlay -o ,upperdir=/overlay/rw,workdir=/overlay/work /chroot
+
+# mount /dev and /sys for chroot environment
+# /dev/pts, /dev/shm, /proc, /tmp and /run will be mounted by inittab from fstab
+
+#mount -t sysfs sysfs /sys
+#mount --rbind /sys /chroot/sys/
+#mount --rbind /dev /chroot/dev/
+
+exec switch_chroot /overlay /linuxrc

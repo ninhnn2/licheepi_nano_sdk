@@ -266,9 +266,9 @@ CONFIG_BOOTSTAGE_STASH_SIZE=0x1000
 # CONFIG_SATA_BOOT is not set
 # CONFIG_SD_BOOT is not set
 # CONFIG_SPI_BOOT is not set
-CONFIG_BOOTDELAY=2
+CONFIG_BOOTDELAY=0
 CONFIG_USE_BOOTARGS=y
-CONFIG_BOOTARGS="console=ttyS0,115200 panic=5 rootwait root=/dev/mtdblock3 rw rootfstype=squashfs init=linuxrc"
+CONFIG_BOOTARGS="console=ttyS0,115200 panic=5 rootwait root=/dev/mtdblock3 rw rootfstype=squashfs init=/linuxrc"
 CONFIG_USE_BOOTCOMMAND=y
 CONFIG_BOOTCOMMAND="sf probe 0 60000000; sf read 0x80c00000 0x70000 0x10000; sf read 0x80008000 0x80000 0x400000; bootz 0x80008000 - 0x80c00000"
 

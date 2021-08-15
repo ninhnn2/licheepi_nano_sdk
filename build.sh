@@ -291,7 +291,7 @@ copy_buildroot(){
 #pack=========================================================
 pack_spiflash_normal_size_img(){
 
-	cd ${temp_root_dir}
+    cd ${temp_root_dir}
 
     OUT_FILENAME=${temp_root_dir}/output/flashimg.bin
     
@@ -306,9 +306,6 @@ pack_spiflash_normal_size_img(){
 
     ROOTFS_FILE=${temp_root_dir}/$BUILDROOT_OUTPUT_DIR/rootfs.tar
 
-    SPEC_FILE=rootfs/custom/*
-    SCRIPTES=rootfs/scripts/*.sh
-
     dd if=/dev/zero of=$OUT_FILENAME bs=1M count=16
     dd if=$UBOOT_FILE of=$OUT_FILENAME bs=1K conv=notrunc
     dd if=$DTB_FILE of=$OUT_FILENAME bs=1K seek=448  conv=notrunc
@@ -317,20 +314,26 @@ pack_spiflash_normal_size_img(){
     mkdir ${temp_root_dir}/output/rootfs
     tar xf $ROOTFS_FILE -C ${temp_root_dir}/output/rootfs
 
+    #copy esp8089 module to rootfs
+    cp esp8089/esp8089.ko ${temp_root_dir}/output/rootfs/root/
+    cp esp8089/wpa_supplicant.conf ${temp_root_dir}/output/rootfs/etc/
+    cp esp8089/connect_wifi.sh ${temp_root_dir}/output/rootfs/root/
+    cp -rf esp8089/S40network ${temp_root_dir}/output/rootfs/etc/init.d/
+
     cp -r $KERNEL_MODULES_DIR ${temp_root_dir}/output/rootfs/usr/
     cp -r $SPEC_FILE $BUILDROOT_OUTPUT_DIR/rootfs/
-
+    
+    #rootfs
     mkdir ${temp_root_dir}/output/rootfs/overlay
     mkdir ${temp_root_dir}/output/rootfs/chroot
     mkdir ${temp_root_dir}/output/rootfs/rom
-	mkdir ${temp_root_dir}/output/overlay/
+
+    #jffs2
+    mkdir ${temp_root_dir}/output/overlay/
+    mkdir -p ${temp_root_dir}/output/overlay/work
+    mkdir -p ${temp_root_dir}/output/overlay/rw
 
     cp -r preinit ${temp_root_dir}/output/rootfs/etc/
-
-    # add some custom modify
-    for f in $SCRIPTES; do
-        ROOTFS_PATH=${temp_root_dir}/output/rootfs bash "$f" -H
-    done
 
     fakeroot mksquashfs ${temp_root_dir}/output/rootfs/ ${temp_root_dir}/output/rootfs.img -no-exports -no-xattrs -all-root
     fakeroot mkfs.jffs2 -s 0x100 -e 0x10000 --pad=0x400000 -o ${temp_root_dir}/output/jffs2.img -d ${temp_root_dir}/output/overlay/
@@ -338,8 +341,8 @@ pack_spiflash_normal_size_img(){
     dd if=${temp_root_dir}/output/rootfs.img of=$OUT_FILENAME bs=1K seek=4608  conv=notrunc
     dd if=${temp_root_dir}/output/jffs2.img of=$OUT_FILENAME bs=1M seek=12 conv=notrunc
 
-    #rm -rf ${temp_root_dir}/output/rootfs ${temp_root_dir}/output/rootfs.img ${temp_root_dir}/output/jffs2.img
-
+    rm -rf ${temp_root_dir}/output/rootfs ${temp_root_dir}/output/rootfs.img ${temp_root_dir}/output/jffs2.img
+    rm -rf ${temp_root_dir}/output/overlay	
 }
 pack_tf_normal_size_img(){
 	_ROOTFS_FILE=${temp_root_dir}/output/rootfs.tar.gz
@@ -504,6 +507,10 @@ fi
 
 if [ "${1}" = "pull_buildroot" ]; then
 	pull_buildroot
+fi
+
+if [ "${1}" = "pack" ]; then
+        pack_spiflash_normal_size_img
 fi
 
 if [ "${1}" = "nano_spiflash" ]; then
