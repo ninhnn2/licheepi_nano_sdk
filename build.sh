@@ -486,6 +486,7 @@ if [ "${1}" = "" ] && [ ! "${1}" = "nano_spiflash" ] && [ ! "${1}" = "nano_tf" ]
 	echo "nano_spiflash    Build nano firmware booted from spiflash";
 	echo "nano_tf          Build nano firmware booted from tf";
 	echo "pull_all         Pull build env from internet";
+	echo "pack             Pack all file for norflash rom (not rebuild)";
 	echo "clean            Clean build env";
     exit 0
 fi
