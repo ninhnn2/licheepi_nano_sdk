@@ -23,12 +23,18 @@ BUILD ROM FOR NORFLASH 16MB
 ./build.sh nano_spiflash
 ```
 
-## The norflash rom include wifi module esp8089
+The norflash rom include wifi module esp8089
 
-## Change ssid and password for Lichee Pi Nano 
+Change ssid and password for Lichee Pi Nano 
 
-# esp8089/wpa_supplicant.conf
+```shell
+shell# vim esp8089/wpa_supplicant.conf
 
+network={
+        ssid="embedded"
+        psk="VIETNAM"
+}
+```
 
 FLASH ROM TO SDCARD
 =======================
