@@ -45,9 +45,10 @@ sudo dd bs=4M if=lichee-nano-normal-size.img of=/dev/sdb conv=fsync
 ```
 
 ROM FOR TESTING
-=======================
-## user   : root
+===============
+user   : root
+passwd : 000
 
-## passwd : 000
+[sdcard rom test](https://mega.nz/file/Myp20YxZ#7GH6VL6gQFb6ywQPv-gALdYCResSTUQDG2RmtdAWigw)
 
-[Example rom for test](https://mega.nz/file/Myp20YxZ#7GH6VL6gQFb6ywQPv-gALdYCResSTUQDG2RmtdAWigw)
+[norflash rom test](https://mega.nz/file/xuZBmYRJ#ES87VDUaZ-a5ne9D-fwORBrPsOvWDQMtUYfelrDtgg8)
