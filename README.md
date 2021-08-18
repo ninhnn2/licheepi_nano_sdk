@@ -6,7 +6,7 @@ MANUAL
 ```shell
 git clone https://github.com/ninhnn2/licheepi_nano_sdk.git
 cd licheepi_nano_sdk/
-sudo chmod ++x ./build.sh
+sudo chmod +x ./build.sh
 ./build.sh pull_all
 ```
 BUILD ROM FOR SDCARD
@@ -15,6 +15,22 @@ BUILD ROM FOR SDCARD
 ```shell
 ./build.sh nano_tf
 ```
+
+BUILD ROM FOR NORFLASH 16MB
+=======================
+
+## The norflash rom include wifi module esp8089
+
+## Change ssid and password for Lichee Pi Nano 
+
+- esp8089/wpa_supplicant.conf
+
+
+```shell
+./build.sh nano_spiflash
+```
+
+
 
 FLASH ROM TO SDCARD
 =======================
