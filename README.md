@@ -25,6 +25,8 @@ BUILD ROM FOR NORFLASH 16MB
 
 The norflash rom include wifi module esp8089
 
+Static IP: 192.168.1.100
+
 Change ssid and password for Lichee Pi Nano 
 
 ```shell
@@ -35,6 +37,7 @@ network={
         psk="VIETNAM"
 }
 ```
+
 
 FLASH ROM TO SDCARD
 =======================
