@@ -1,40 +1,30 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR X11)
+/*
+ * Copyright 2021 Ninh Nguyen Nhut <nguyennhutninh@gmail.com>
+ */
 
 /dts-v1/;
 #include "suniv-f1c100s.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
-	model = "Widora MangoPi R3";
-	compatible = "allwinner,suniv-f1c200s",
-			 "allwinner,suniv-f1c100s";
+	model = "Lichee Pi Nano";
+	compatible = "licheepi,licheepi-nano", "allwinner,suniv-f1c100s";
 
 	aliases {
 		serial0 = &uart0;
 	};
 
 	chosen {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		ranges;
-
 		stdout-path = "serial0:115200n8";
-
-		 simplefb_lcd: framebuffer-lcd0 {
-		 	compatible = "allwinner,simple-framebuffer",
-		 		     "simple-framebuffer";
-		 	allwinner,pipeline = "de_be0-lcd0";
-		 	clocks = <&ccu CLK_BUS_DE_BE>, <&ccu CLK_DE_BE>,
-		 		 <&ccu CLK_DRAM_DE_BE>, <&ccu CLK_BUS_LCD>,
-		 		 <&ccu CLK_TCON>;
-		 	status = "disabled";
-		 };
 	};
 
 	panel: panel {
 		compatible = "qiaodian,qd43003c0-40", "simple-panel";
-		enable-gpios = <&pio 1 4 GPIO_ACTIVE_HIGH>; /* Should be backlight */
 		#address-cells = <1>;
 		#size-cells = <0>;
+		enable-gpios = <&pio 4 6 GPIO_ACTIVE_HIGH>;
+		power-supply = <&reg_vcc3v3>;
 
 		port@0 {
 			reg = <0>;
@@ -46,6 +36,13 @@
 				remote-endpoint = <&tcon0_out_lcd>;
 			};
 		};
+	};
+
+	reg_vcc3v3: vcc3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 	};
 };
 
@@ -170,19 +167,7 @@
 	status = "okay";
 };
 
-&cedar_ve {
-	status = "okay";
-};
-
-&ion {
-	status = "okay";
-};
-
 &de {
-	status = "okay";
-};
-
-&fe0 {
 	status = "okay";
 };
 
@@ -190,13 +175,13 @@
 	status = "okay";
 };
 
-&tve0 {
+&de {
 	status = "okay";
 };
 
 &tcon0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&lcd_rgb565_pins>;
+	pinctrl-0 = <&lcd_rgb666_pins>;
 	status = "okay";
 };
 
@@ -218,9 +203,9 @@
 	status = "okay";
 };
 
-&i2c0 {
+&uart0 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&i2c0_pd_pins>;
+	pinctrl-0 = <&uart0_pe_pins>;
 	status = "okay";
 
 	rtp@48 {
@@ -242,65 +227,5 @@
 		interrupts = <4 12 IRQ_TYPE_EDGE_FALLING>; // PE12
 		irq-gpios = <&pio 4 12 GPIO_ACTIVE_HIGH>; // PE12
 		reset-gpios = <&pio 0 0 GPIO_ACTIVE_HIGH>; // PA0
-	};
-
-	ov2640: camera@30 {
-		compatible = "ovti,ov2640";
-		reg = <0x30>;
-		pinctrl-0 = <&clk_out_pins>;
-		pinctrl-names = "default";
-		clocks = <&clk_out>;
-		clock-names = "xvclk";
-		assigned-clocks = <&clk_out>;
-		assigned-clock-rates = <24000000>;
-
-		port {
-			ov2640_ep: endpoint {
-				remote-endpoint = <&csi0_ep>;
-				bus-width = <8>;
-				hsync-active = <0>;
-				vsync-active = <0>;
-				pclk-sample = <1>;
-			};
-		};
-	};
-
-	ov5640: camera@3c {
-		compatible = "ovti,ov5640";
-		reg = <0x3c>;
-		pinctrl-0 = <&clk_out_pins>;
-		pinctrl-names = "default";
-		clocks = <&clk_out>;
-		clock-names = "xclk";
-		assigned-clocks = <&clk_out>;
-		assigned-clock-rates = <24000000>;
-		status = "disabled";
-
-		port {
-			ov5640_ep: endpoint {
-				remote-endpoint = <&csi0_ep>;
-				bus-width = <8>;
-				hsync-active = <0>;
-				vsync-active = <0>;
-				pclk-sample = <1>;
-			};
-		};
-	};
-};
-
-&csi0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&csi0_pins>;
-	packed-format;
-	status = "okay";
-
-	port {
-		csi0_ep: endpoint {
-			remote-endpoint = <&ov2640_ep>;
-			bus-width = <8>;
-			hsync-active = <0>;
-			vsync-active = <0>;
-			pclk-sample = <1>;
-		};
 	};
 };

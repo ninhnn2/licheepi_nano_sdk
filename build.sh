@@ -41,7 +41,7 @@ pull_linux(){
 	rm -rf ${temp_root_dir}/${linux_dir} &&\
 	mkdir -p ${temp_root_dir}/${linux_dir} &&\
 	cd ${temp_root_dir}/${linux_dir} &&\
-    git clone https://github.com/ninhnn2/linux-5.4.77.git linux
+	git clone https://github.com/ninhnn2/linux-5.4.77.git linux
 	
 	if [ ! -d ${temp_root_dir}/${linux_dir}/linux ]; then
 		echo "Error:pull linux failed"
@@ -525,6 +525,14 @@ fi
 
 if [ "${1}" = "build_buildroot" ]; then
 	build_buildroot
+fi
+
+if [ "${1}" = "pull_linux" ]; then
+        pull_linux
+	cp -f ${temp_root_dir}/linux-licheepi_nano_defconfig ${temp_root_dir}/${linux_dir}/arch/arm/configs/licheepi_nano_defconfig
+        cp -f ${temp_root_dir}/linux-licheepi_nano_spiflash_defconfig ${temp_root_dir}/${linux_dir}/arch/arm/configs/licheepi_nano_spiflash_defconfig
+        cp -f ${temp_root_dir}/suniv-f1c100s-licheepi-nano.dts ${temp_root_dir}/${linux_dir}/arch/arm/boot/dts/suniv-f1c100s-licheepi-nano.dts
+
 fi
 
 if [ "${1}" = "nano_tf" ]; then
